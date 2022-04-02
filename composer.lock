@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "rsthn/rose-core",
-            "version": "4.0.15",
+            "version": "4.0.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rsthn/rose-core.git",
-                "reference": "eb4c16c265e24be915ba46d3ba2e2828f27f4aaf"
+                "reference": "7a6fb84796962242c410f98e045247448a922047"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rsthn/rose-core/zipball/eb4c16c265e24be915ba46d3ba2e2828f27f4aaf",
-                "reference": "eb4c16c265e24be915ba46d3ba2e2828f27f4aaf",
+                "url": "https://api.github.com/repos/rsthn/rose-core/zipball/7a6fb84796962242c410f98e045247448a922047",
+                "reference": "7a6fb84796962242c410f98e045247448a922047",
                 "shasum": ""
             },
             "require": {
@@ -44,9 +44,9 @@
             "homepage": "https://github.com/rsthn/rose-core",
             "support": {
                 "issues": "https://github.com/rsthn/rose-core/issues",
-                "source": "https://github.com/rsthn/rose-core/tree/v4.0.15"
+                "source": "https://github.com/rsthn/rose-core/tree/v4.0.16"
             },
-            "time": "2022-04-01T02:52:31+00:00"
+            "time": "2022-04-02T10:17:32+00:00"
         },
         {
             "name": "rsthn/rose-ext-sentinel",
