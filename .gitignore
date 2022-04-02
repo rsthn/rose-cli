@@ -1,0 +1,7 @@
+--*
+vendor/
+.svn
+*.log
+*.tmp
+volatile/
+deploy.js

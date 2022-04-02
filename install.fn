@@ -1,0 +1,16 @@
+;;
+;;	Detects the installation directory of composer and creates a batch/sh file over there.
+;;
+
+(set DIR (re::get `/^(.+)composer\.\w\w\w?$/` (trim (utils::shell `where composer`)) 1))
+(set PHP (trim (utils::shell `where php`)))
+
+(when-not (and (path::exists (DIR)) (path::is_dir (DIR)))
+	(throw "Target path `(DIR)` does not exist."))
+
+(file::write (path::append (DIR) "rose.bat") (trim `
+@echo off
+{PHP} "{path::append {path::fsroot} cli.php}" %*
+`))
+
+(echo "> Install successful.")

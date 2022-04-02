@@ -1,0 +1,19 @@
+{
+    "name": "rsthn/rose-cli",
+    "description": "Rose CLI Utility",
+    "homepage": "https://github.com/rsthn/rose-cli",
+    "version": "1.0.0",
+    "type": "project",
+    "license": "Apache-2.0",
+    "minimum-stability": "stable",
+    "require": {
+        "rsthn/rose-core": "^4",
+        "rsthn/rose-ext-sentinel": "^1.0",
+        "rsthn/rose-ext-shield": "^1.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "rsthn/rose-extension-installer": true
+        }
+    }
+}
