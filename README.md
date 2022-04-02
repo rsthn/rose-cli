@@ -53,10 +53,18 @@ rose add <package-name>
 
 Removes a package.
 ```sh
-rose remove|rm <package-name>
+rose remove <package-name>
+rose rm <package-name>
 ```
 
-Updates all packages or an specific package.
+Updates all installed packages.
 ```sh
-rose update|up [<package-name>]
+rose update
+rose up
+```
+
+Updates an specific package.
+```sh
+rose update <package-name>
+rose up <package-name>
 ```
