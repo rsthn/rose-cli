@@ -9,6 +9,10 @@ use Rose\IO\Path;
 use Rose\Text;
 use Rose\Map;
 use Rose\Gateway;
+use Rose\Expr;
+
+use Rose\Errors\FalseError;
+use Rose\Ext\Wind\SubReturn;
 
 function cli_error_handler ($errno, $message)
 {
@@ -24,6 +28,7 @@ if ($args->length < 2)
 {
 	echo "Use:\n";
 	echo "    rose <fn-file> [arguments...]              Runs the specified file.\n";
+	echo "    rose -i <string>                           Executes the given string immediately.\n";
 	echo "    rose version|--version|-v                  Shows the rose-core and CLI versions.\n";
 	echo "    rose list                                  Shows a list of all installed packages.\n";
 	echo "    rose add <package-name>                    Installs a package using composer.\n";
@@ -41,6 +46,30 @@ try {
 		case 'version':
 			echo "\x1B[97mcore:\x1B[0m v".Main::version()."\n";
 			echo "\x1B[97mcli:\x1B[0m v".(json_decode(file_get_contents(dirname(__FILE__).'/composer.json'))->version)."\n";
+			break;
+
+		case '-i':
+			if (!$args->{2})
+			{
+				echo "\x1B[91mError:\x1B[0m " . 'Parameter <string> is missing.' . "\n";
+				break;
+			}
+
+			try {
+				Wind::$data = new Map();
+				$response = Expr::eval($args->{2}, Wind::$data);
+	
+				if ($response != null)
+					Wind::reply ($response);
+			}
+			catch (SubReturn $e)
+			{
+				if (!Wind::$contentFlushed)
+					echo Wind::$response;
+			}
+			catch (FalseError $e) {
+			}
+	
 			break;
 
 		case 'list':

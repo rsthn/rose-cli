@@ -12,6 +12,7 @@ Open a console and navigate to the folder where you want `rose-cli` to be instal
 ```sh
 composer create-project rsthn/rose-cli
 cd rose-cli
+composer update
 php cli.php install.fn
 ```
 
@@ -39,6 +40,11 @@ Shows the rose-core and CLI versions.
 rose version
 rose --version
 rose -v
+```
+
+Execute code from a string.
+```sh
+rose -i "(echo (upper 'Hello World!'))"
 ```
 
 Shows a list of all installed packages.
