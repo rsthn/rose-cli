@@ -19,7 +19,22 @@ function cli_error_handler ($errno, $message)
 	echo "\x1B[93mWarn:\x1B[0m " . $message . "\n";
 }
 
-Main::cli(dirname(__FILE__));
+Main::defs(true);
+
+$dir = Path::resolve(Path::dirname("."));
+while ($dir)
+{
+	if (Path::exists(Path::append($dir, 'rcore'))) {
+		Main::$CORE_DIR = Path::append($dir, 'rcore');
+		break;
+	}
+	
+	$n_dir = Path::dirname($dir);
+	if (!$n_dir || $n_dir == $dir) $n_dir = null;
+	$dir = $n_dir;
+}
+
+Main::cli(Path::dirname(__FILE__));
 
 set_error_handler ('cli_error_handler', E_STRICT | E_USER_ERROR | E_WARNING | E_USER_WARNING);
 
