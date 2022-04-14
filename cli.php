@@ -10,7 +10,14 @@ use Rose\Text;
 use Rose\Map;
 use Rose\Gateway;
 
+function cli_error_handler ($errno, $message)
+{
+	echo "\x1B[93mWarn:\x1B[0m " . $message . "\n";
+}
+
 Main::cli(dirname(__FILE__));
+
+set_error_handler ('cli_error_handler', E_STRICT | E_USER_ERROR | E_WARNING | E_USER_WARNING);
 
 $args = new Arry($argv);
 if ($args->length < 2)
@@ -80,7 +87,10 @@ try {
 			break;
 
 		default:
-			Rose\Ext\Wind::run($args->get(1), new Map ([ 'args' => $args->slice(2) ]));
+			if (Path::exists($args->get(1)))
+				Rose\Ext\Wind::run($args->get(1), new Map ([ 'args' => $args->slice(2) ]));
+			else
+				Rose\Ext\Wind::run($args->get(1).'.fn', new Map ([ 'args' => $args->slice(2) ]));
 			break;
 	}
 }
