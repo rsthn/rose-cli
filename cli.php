@@ -6,6 +6,7 @@ use Rose\Main;
 use Rose\Ext\Wind;
 use Rose\Arry;
 use Rose\IO\Path;
+use Rose\IO\Directory;
 use Rose\Text;
 use Rose\Map;
 use Rose\Gateway;
@@ -21,7 +22,7 @@ function cli_error_handler ($errno, $message)
 
 Main::defs(true);
 
-$dir = Path::resolve(Path::dirname("."));
+$dir = Path::resolve(Path::dirname('.'));
 while ($dir)
 {
 	if (Path::exists(Path::append($dir, 'rcore'))) {
@@ -49,6 +50,8 @@ if ($args->length < 2)
 	echo "    rose add <package-name>                    Installs a package using composer.\n";
 	echo "    rose remove|rm <package-name>              Removes a package.\n";
 	echo "    rose update|up [<package-name>]            Updates all packages or an specific package.\n";
+	echo "    rose get <repo-url> [<mod-name>]           Installs a module from a repository.\n";
+	echo "    rose del <mod-name>                        Removes a module.\n";
 	return;
 }
 
@@ -65,10 +68,7 @@ try {
 
 		case '-i':
 			if (!$args->{2})
-			{
-				echo "\x1B[91mError:\x1B[0m " . 'Parameter <string> is missing.' . "\n";
-				break;
-			}
+				throw new Error('Parameter <string> is missing.');
 
 			try {
 				Wind::$data = new Map();
@@ -96,10 +96,7 @@ try {
 
 		case 'add':
 			if (!$args->{2})
-			{
-				echo "\x1B[91mError:\x1B[0m " . 'Parameter <package-name> is missing.' . "\n";
-				break;
-			}
+				throw new Error('Parameter <package-name> is missing.');
 
 			Path::chdir(Path::fsroot());
 
@@ -109,10 +106,7 @@ try {
 		case 'remove':
 		case 'rm':
 			if (!$args->{2})
-			{
-				echo "\x1B[91mError:\x1B[0m " . 'Parameter <package-name> is missing.' . "\n";
-				break;
-			}
+				throw new Error('Parameter <package-name> is missing.');
 
 			Path::chdir(Path::fsroot());
 
@@ -130,14 +124,92 @@ try {
 
 			break;
 
-		default:
-			if (Path::exists($args->get(1)))
-				Rose\Ext\Wind::run($args->get(1), new Map ([ 'args' => $args->slice(2) ]));
+		case 'get':
+			if (!$args->{2})
+				throw new Error('Parameter <repo-url> is missing.');
+
+			$tmp = Path::append(Path::fsroot(), 'tmp');
+
+			$url = $args->{2};
+			if (!Text::indexOf($url, '//'))
+				$url = 'https://github.com/' . $url . '.git';
+
+			Directory::remove($tmp, true);
+
+			echo "\x1B[97mFetching repository ...\x1B[0m\n";
+			system ("git clone " . $url . " " . $tmp, $code);
+			if ($code) throw new Error('git clone exited with error ' . $code);
+
+			echo "\n\n";
+
+			if ($args->{3})
+			{
+				$dir = Path::append($tmp, $args->{3});
+
+				if (!Path::exists($dir))
+					throw new Error('Directory ' . $args->{3} . ' not found');
+
+				echo "\x1B[97mInstalling module `" . $args->{3} . "` ...\x1B[0m";
+				Directory::copy ($dir, Path::append(Path::fsroot(), 'mods', $args->{3}), true, true);
+			}
 			else
-				Rose\Ext\Wind::run($args->get(1).'.fn', new Map ([ 'args' => $args->slice(2) ]));
+			{
+				foreach (Directory::readDirs ($tmp, false)->dirs->__nativeArray as $dir)
+				{
+					if ($dir->name[0] === '.')
+						continue;
+
+					echo "\x1B[97mInstalling module `" . $dir->name . "` ...\x1B[0m";
+					Directory::copy ($dir->path, Path::append(Path::fsroot(), 'mods', $dir->name), true, true);
+				}
+			}
+
+			Directory::remove($tmp, true);
+
+			echo "\n\x1B[92mCompleted\x1B[0m\n";
+			break;
+
+		case 'del':
+			if (!$args->{2})
+				throw new Error('Parameter <mod-name> is missing.');
+
+			$path = Path::append(Path::fsroot(), 'mods', $args->{2});
+
+			if (!Path::exists($path))
+				throw new Error ("Module \x1B[97m'" . $args->{2} . "'\x1B[0m not installed.");
+
+			echo "\x1B[97mRemoving module `" . $args->{2} . "` ...";
+			Directory::remove ($path, true);
+
+			echo "\n\x1B[92mCompleted\x1B[0m\n";
+			break;
+
+		default:
+
+			$path = $args->get(1);
+
+			if ($path[0] === ':')
+			{
+				$name = Text::substring($path, 1);
+
+				$path = Path::append(Path::fsroot(), 'mods', $name);
+				if (!Path::exists($path))
+					throw new Error ("Module \x1B[97m'" . $name . "'\x1B[0m not installed.");
+
+				Rose\Ext\Wind::run($path.'/main.fn', new Map ([ 'args' => $args->slice(2)->unshift(Path::resolve($path.'/main.fn')) ]));
+			}
+			else
+			{
+				if (Text::endsWith($path, '.fn'))
+					Rose\Ext\Wind::run($path, new Map ([ 'args' => $args->slice(2)->unshift(Path::resolve($path)) ]));
+				else
+					Rose\Ext\Wind::run($path.'.fn', new Map ([ 'args' => $args->slice(2)->unshift(Path::resolve($path.'.fn')) ]));
+			}
+
 			break;
 	}
 }
 catch (Throwable $e) {
 	echo "\x1B[91mError:\x1B[0m " . $e->getMessage() . "\n";
+	exit(1);
 }
