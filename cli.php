@@ -1,6 +1,6 @@
 <?php
 
-require('vendor/autoload.php');
+require(__DIR__.'/vendor/autoload.php');
 
 use Rose\Main;
 use Rose\Ext\Wind;
@@ -29,7 +29,7 @@ while ($dir)
 		Main::$CORE_DIR = Path::append($dir, 'rcore');
 		break;
 	}
-	
+
 	$n_dir = Path::dirname($dir);
 	if (!$n_dir || $n_dir == $dir) $n_dir = null;
 	$dir = $n_dir;
@@ -52,6 +52,7 @@ if ($args->length < 2)
 	echo "    rose update|up [<package-name>]            Updates all packages or an specific package.\n";
 	echo "    rose get <repo-url> [<mod-name>]           Installs a module from a repository.\n";
 	echo "    rose del <mod-name>                        Removes a module.\n";
+	echo "    rose :mod-name [args..]                    Executes a module.\n";
 	return;
 }
 
