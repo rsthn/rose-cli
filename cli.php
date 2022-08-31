@@ -53,6 +53,7 @@ if ($args->length < 2)
 	echo "    rose get <repo-url> [<mod-name>]           Installs a module from a repository.\n";
 	echo "    rose del <mod-name>                        Removes a module.\n";
 	echo "    rose :mod-name [args..]                    Executes a module.\n";
+	echo "\n";
 	return;
 }
 
@@ -214,3 +215,5 @@ catch (Throwable $e) {
 	echo "\x1B[91mError:\x1B[0m " . $e->getMessage() . "\n";
 	exit(1);
 }
+
+echo "\n";

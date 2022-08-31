@@ -13,7 +13,7 @@ Open a console and navigate to the folder where you want `rose-cli` to be instal
 composer create-project rsthn/rose-cli
 cd rose-cli
 composer update
-php cli.php install.fn
+./install.sh
 ```
 
 After that, the command `rose` should be globally accessible.
