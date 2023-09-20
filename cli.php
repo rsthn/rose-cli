@@ -15,9 +15,8 @@ use Rose\Expr;
 use Rose\Errors\FalseError;
 use Rose\Ext\Wind\SubReturn;
 
-function cli_error_handler ($errno, $message)
-{
-	echo "\x1B[93mWarn:\x1B[0m " . $message . "\n";
+function cli_error_handler ($errno, $message, $file, $line) {
+	echo "\x1B[93mWarn (${file} ${line}):\x1B[0m " . $message . "\n";
 }
 
 Main::defs(true);
