@@ -3,36 +3,28 @@
 ;;
 
 (case (args.1)
-	win (@
-		(set DIR (re::get `/^(.+)composer\.\w\w\w?$/` (trim (utils::shell `where composer`)) 1))
-		(set PHP (trim (utils::shell `where php`)))
+    win (@
+        (set DIR (re::get `/^(.+)composer/` (trim (utils::shell `where composer`)) 1))
+        (set PHP (re::get `/^(.+)php/` (trim (utils::shell `where php`)) 0))
 
-		(when-not (and (path::exists (DIR)) (path::is_dir (DIR)))
-			(throw "Target path `(DIR)` does not exist."))
+        (when-not (and (path::exists (DIR)) (path::is_dir (DIR)))
+            (throw "Target path `(DIR)` does not exist."))
 
-		(set target (path::append (DIR) "rose.bat"))
-		(file::write (target) (trim `
-@echo off
-{PHP} "{path::append {path::fsroot} cli.php}" %*
-		`))
+        (set target (path::append (DIR) "rose.bat"))
+        (file::write (target) (trim `@echo off\n"{PHP}" "{path::append {path::fsroot} cli.php}" %*`))
+        (echo "\e[32m > Installed shortcut to (target).\e[0m")
+    )
 
-		(echo "\e[32m > Installed shortcut to (target).\e[0m")
-	)
+    linux (@
+        (set DIR (re::get `/^(.+)composer` (trim (utils::shell `which composer`)) 1))
+        (set PHP (re::get `/^(.+)php/` (trim (utils::shell `which php`)) 0))
 
-	linux (@
-		(set DIR (re::get `/^(.+)composer(\.\w\w\w?)?$/` (trim (utils::shell `which composer`)) 1))
-		(set PHP (trim (utils::shell `which php`)))
+        (when-not (and (path::exists (DIR)) (path::is_dir (DIR)))
+            (throw "Target path `(DIR)` does not exist."))
 
-		(when-not (and (path::exists (DIR)) (path::is_dir (DIR)))
-			(throw "Target path `(DIR)` does not exist."))
-
-		(set target (path::append (DIR) "rose"))
-		(file::write (target) (trim `
-{PHP} "{path::append {path::fsroot} cli.php}" "$@"
-		`))
-
-		(path::chmod (target) 0755)
-
-		(echo "\e[32m > Installed shortcut to (target).\e[0m")
-	)
+        (set target (path::append (DIR) "rose"))
+        (file::write (target) (trim `"{PHP}" "{path::append {path::fsroot} cli.php}" "$@"`))
+        (path::chmod (target) 0755)
+        (echo "\e[32m > Installed shortcut to (target).\e[0m")
+    )
 )

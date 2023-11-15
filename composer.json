@@ -2,7 +2,6 @@
     "name": "rsthn/rose-cli",
     "description": "Rose CLI Utility",
     "homepage": "https://github.com/rsthn/rose-cli",
-    "version": "1.0.8",
     "type": "project",
     "license": "Apache-2.0",
     "minimum-stability": "stable",
