@@ -6,18 +6,22 @@
     win (@
         (set DIR (re::get `/^(.+)composer/` (trim (utils::shell `where composer`)) 1))
         (set PHP (re::get `/^(.+)php/` (trim (utils::shell `where php`)) 0))
+        (echo "Composer path: (DIR)")
+        (echo "PHP path: (PHP)")
 
         (when-not (and (path::exists (DIR)) (path::is_dir (DIR)))
             (throw "Target path `(DIR)` does not exist."))
 
         (set target (path::append (DIR) "rose.bat"))
         (file::write (target) (trim `@echo off\n"{PHP}" "{path::append {path::fsroot} cli.php}" %*`))
-        (echo "\e[32m > Installed shortcut to (target).\e[0m")
+        (echo "\e[32m > Installed (target).\e[0m")
     )
 
     linux (@
-        (set DIR (re::get `/^(.+)composer` (trim (utils::shell `which composer`)) 1))
+        (set DIR (re::get `/^(.+)composer/` (trim (utils::shell `which composer`)) 1))
         (set PHP (re::get `/^(.+)php/` (trim (utils::shell `which php`)) 0))
+        (echo "Composer path: (DIR)")
+        (echo "PHP path: (PHP)")
 
         (when-not (and (path::exists (DIR)) (path::is_dir (DIR)))
             (throw "Target path `(DIR)` does not exist."))
@@ -25,6 +29,6 @@
         (set target (path::append (DIR) "rose"))
         (file::write (target) (trim `"{PHP}" "{path::append {path::fsroot} cli.php}" "$@"`))
         (path::chmod (target) 0755)
-        (echo "\e[32m > Installed shortcut to (target).\e[0m")
+        (echo "\e[32m > Installed (target).\e[0m")
     )
 )
