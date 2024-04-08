@@ -66,7 +66,7 @@ try {
         case '-v':
         case 'version':
             echo "\x1B[97mcore:\x1B[0m v".Main::version()."\n";
-            echo "\x1B[97mcli:\x1B[0m v".(json_decode(file_get_contents(dirname(__FILE__).'/composer.json'))->version)."\n";
+            echo "\x1B[97mcli:\x1B[0m v".(file_get_contents(dirname(__FILE__).'/VERSION.txt'))."\n";
             break;
 
         case '-i':
@@ -93,7 +93,7 @@ try {
         case 'list':
             echo "Installed packages:\n\n";
             foreach (json_decode(file_get_contents(dirname(__FILE__).'/composer.lock'))->packages as $package)
-                echo "    \x1B[97m".$package->name.":\x1B[0m \x1B[92mv".$package->version."\x1B[0m\n";
+                echo "    \x1B[97m".$package->name.":\x1B[0m \x1B[92m".$package->version."\x1B[0m\n";
 
             break;
 
