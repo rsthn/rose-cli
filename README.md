@@ -22,7 +22,7 @@ After that, the command `rose` should be globally accessible.
 
 ## Removal
 
-Automatic removal is currently not supported, but to remove it manually simply execute `where rose` or `whereis rose` to locate the `rose.sh` or `rose.bat` file that was created in the PHP folder and remove it. Then remove the entire `rose-cli` folder and that is all.
+Automatic removal is currently not supported, but to remove it manually simply execute `where rose` / `whereis rose` / `which rose` to locate the `rose.sh` or `rose.bat` file that was created in the PHP folder and remove it. Then remove the entire `rose-cli` folder and that is all.
 
 <br/>
 

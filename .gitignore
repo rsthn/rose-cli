@@ -6,3 +6,5 @@ vendor/
 volatile/
 deploy.js
 VERSION.txt
+composer.lock
+logs/
