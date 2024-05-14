@@ -4,10 +4,11 @@ ECHO {clr 92}Bumping up version ...{clr 0}
     WRITE VERSION
     ECHO New version is: {NEW_VERSION}
 
-ECHO {clr 92}Pushing ...{clr 0}
+ECHO {clr 92}Commiting ...{clr 0}
 RUN git add .
 RUN git commit -m "v{NEW_VERSION}"
+ECHO {clr 92}Pushing ...{clr 0}
 RUN git push
 RUN git push --tags
 
-ECHO {clr 96}* Deployment completed.{clr 0}
+ECHO {clr 92}Deployment completed.{clr 0}
