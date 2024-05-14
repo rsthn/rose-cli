@@ -1,0 +1,13 @@
+ECHO {clr 92}Bumping up version ...{clr 0}
+    NEW_VERSION {with v {split "." {file:read "VERSION"}} {set idx {- {len {v}} 1}} {set v.{idx} {+ 1 {v.{idx}}}} {join "." {v}}}
+    r0 {NEW_VERSION}
+    WRITE VERSION
+    ECHO New version is: {NEW_VERSION}
+
+ECHO {clr 92}Pushing ...{clr 0}
+RUN git add .
+RUN git commit -m "v{NEW_VERSION}"
+RUN git push
+RUN git push --tags
+
+ECHO {clr 96}* Deployment completed.{clr 0}
