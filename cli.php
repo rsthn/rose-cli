@@ -35,7 +35,9 @@ while ($dir)
 }
 
 Main::cli(Path::dirname(__FILE__));
+
 Wind::$data = new Map();
+Expr::$importPath = Path::dirname(__FILE__);
 
 set_error_handler ('cli_error_handler', E_STRICT | E_USER_ERROR | E_WARNING | E_USER_WARNING);
 
