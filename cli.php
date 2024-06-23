@@ -85,7 +85,7 @@ try {
                             "(+ (* 1000 (s)) (val))".
                          ")".
                        ")".
-                       "(".$args->get(2)." '".Main::version()."' '".$args->get(3)."')"
+                       "(".$args->get(2)." (version '".Main::version()."') (version '".$args->get(3)."'))"
                     ;
 
                 if (!Expr::eval($tmp, Wind::$data))
