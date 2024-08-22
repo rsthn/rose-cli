@@ -14,9 +14,10 @@ use Rose\Expr;
 
 use Rose\Errors\FalseError;
 use Rose\Ext\Wind\SubReturn;
+use Rose\Errors\MetaError;
 
 function cli_error_handler ($errno, $message, $file, $line) {
-    echo "\x1B[93mWarn (".$file." ".$line."):\x1B[0m " . $message . "\n";
+    echo "\e[93mWarn (".$file." ".$line."):\e[0m " . $message . "\n";
 }
 
 Main::defs(true);
@@ -51,6 +52,7 @@ if ($args->length < 2)
     echo "  rose -i <code>                            Executes the given code immediately.\n";
     echo "  rose version op target-version            Checks if the rose-core version matches the condition.\n";
     echo "  rose version                              Shows the rose-core and CLI versions.\n";
+    echo "  rose repl                                 Enters REPL mode.\n";
     echo "\n";
     echo "  rose ls                                   Shows a list of all installed packages.\n";
     echo "  rose add <package-name>                   Installs a package using composer.\n";
@@ -95,6 +97,57 @@ try {
 
             echo "\n  \e[90mcore:\e[0m \e[97mv".Main::version() . "\e[0m";
             echo "\n  \e[90mcli:\e[0m v".(json_decode(file_get_contents(dirname(__FILE__).'/composer.json'))->version) . "\e[0m";
+            break;
+
+        /**
+         * `repl`
+         */
+        case 'repl':
+            while(true)
+            {
+                echo "\e[90m";
+                echo "\n> ";
+
+                $line = '';
+                $parsed = null;
+                while(true)
+                {
+                    $input = fgets(STDIN);
+                    if ($input === false) break 2;
+                    $line .= $input;
+
+                    try {
+                        if ($line === 'exit') break 2;
+                        $parsed = Expr::parse($line);
+                        break 1;
+                    }
+                    catch (Throwable $e) {
+                        $e = (string)$e;
+                        if (Text::indexOf($e, 'parse error') !== false)
+                            continue;
+
+                        echo "\e[91mError:\e[0m " . $e->getMessage() . "\n";
+                        break;
+                    }
+                }
+
+                if (!$parsed) continue;
+
+                echo "\e[0m";
+                try {
+                    $response = Expr::expand($parsed, Wind::$data, 'arg');
+                    if ($response != null)
+                        echo $response."\n";
+                }
+                catch (MetaError $e) {
+                    echo $e->value."\n";
+                }
+                catch (FalseError $e) {
+                }
+                catch (\Throwable $e) {
+                    echo "\e[91mError:\e[0m " . $e->getMessage() . "\n";
+                }
+            }
             break;
 
         /**
