@@ -117,7 +117,7 @@ try {
                     $line .= $input;
 
                     try {
-                        if ($line === 'exit') break 2;
+                        if (trim($line) === 'exit') break 2;
                         $parsed = Expr::parse($line);
                         break 1;
                     }
@@ -135,12 +135,14 @@ try {
 
                 echo "\e[0m";
                 try {
+                    Gateway::$contentFlushed = false;
                     $response = Expr::expand($parsed, Wind::$data, 'arg');
-                    if ($response != null)
+                    if ($response != null && !Gateway::$contentFlushed)
                         echo $response."\n";
                 }
                 catch (MetaError $e) {
-                    echo $e->value."\n";
+                    if (!Gateway::$contentFlushed)
+                        echo $e->value."\n";
                 }
                 catch (FalseError $e) {
                 }
