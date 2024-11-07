@@ -1,4 +1,4 @@
-;; Detects the installation directory of composer and creates a batch/sh file over there.
+;; Detects the installation directory of composer and creates a batch/sh file.
 (switch (args.1)
     case "win" (@
         (set DIR (re:get `/^(.+)composer/` (trim (sys:shell `where composer`)) 1))
@@ -9,9 +9,11 @@
         (when-not (and (path:exists (DIR)) (path:is-dir (DIR)))
             (throw "Target path `(DIR)` does not exist."))
 
-        (set target (path:append (DIR) "rose.bat"))
+        (set target (path:append (path:fsroot) "bin" "rose.bat"))
+        (dir:create (path:dirname (target)))
+
         (file:write (target) (trim `@echo off\n"{PHP}" "{path:append {path:fsroot} cli.php}" %*`))
-        (echo "\e[32m > Installed (target).\e[0m")
+        (echo "\n\e[97m* Add the following to your PATH: \e[92m(path:dirname (target))\e[0m")
     )
 
     case "linux" (@
@@ -23,9 +25,11 @@
         (when-not (and (path:exists (DIR)) (path:is-dir (DIR)))
             (throw "Target path `(DIR)` does not exist."))
 
-        (set target (path:append (DIR) "rose"))
+        (set target (path:append (path:fsroot) "bin" "rose"))
+        (dir:create (path:dirname (target)))
+
         (file:write (target) (trim `"{PHP}" "{path:append {path:fsroot} cli.php}" "$@"`))
         (path:chmod (target) 0755)
-        (echo "\e[32m > Installed (target).\e[0m")
+        (echo "\n\e[97m* Add the following to your PATH: \e[92m(path:dirname (target))\e[0m")
     )
 )

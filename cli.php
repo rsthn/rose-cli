@@ -7,6 +7,7 @@ use Rose\Ext\Wind;
 use Rose\Arry;
 use Rose\IO\Path;
 use Rose\IO\Directory;
+use Rose\IO\File;
 use Rose\Text;
 use Rose\Map;
 use Rose\Gateway;
@@ -22,7 +23,7 @@ function cli_error_handler ($errno, $message, $file, $line) {
 
 Main::defs(true);
 
-$dir = Path::resolve(Path::dirname('.'));
+/* $dir = Path::resolve(Path::dirname('.'));
 while ($dir)
 {
     if (Path::exists(Path::append($dir, 'rcore'))) {
@@ -33,7 +34,7 @@ while ($dir)
     $n_dir = Path::dirname($dir);
     if (!$n_dir || $n_dir == $dir) $n_dir = null;
     $dir = $n_dir;
-}
+} */
 
 Main::cli(Path::dirname(__FILE__));
 
@@ -45,7 +46,7 @@ set_error_handler ('cli_error_handler', E_STRICT | E_USER_ERROR | E_WARNING | E_
 $args = new Arry($argv);
 if ($args->length < 2)
 {
-    echo "\n";
+    echo "\nUsage:\n";
     echo "  rose new [target-folder]                  Creates a new API project in the specified folder.\n";
     echo "\n";
     echo "  rose <fn-file> [args...]                  Runs the specified file.\n";
@@ -64,7 +65,7 @@ if ($args->length < 2)
     echo "  rose mod-ls                               Shows a list of installed modules.\n";
     echo "  rose mod-add <mod-name>                   Installs a module.\n";
     echo "  rose mod-rm <mod-name>                    Removes a module.\n";
-    echo "  rose :mod-name [args..]                   Executes a module with the specified parameters.\n";
+    echo "  rose mod-name [args..]                    Executes a module with the specified parameters.\n";
     return;
 }
 
@@ -96,7 +97,7 @@ try {
             }
 
             echo "\n  \e[90mcore:\e[0m \e[97mv".Main::version() . "\e[0m";
-            echo "\n  \e[90mcli:\e[0m v".(json_decode(file_get_contents(dirname(__FILE__).'/composer.json'))->version) . "\e[0m";
+            echo "\n  \e[90mcli:\e[0m \e[97mv".(file_get_contents(dirname(__FILE__).'/VERSION.txt'))."\e[0m";
             break;
 
         /**
@@ -284,6 +285,8 @@ try {
             if (!Path::exists($tmp))
                 throw new Error("Repository \e[97m" . $url . "\e[0m not in the module cache, run \e[96mmod-pull\e[0m first.");
     
+            $bin_dir = Path::append(Path::fsroot(), 'bin');
+
             if ($args->get(2) !== '*')
             {
                 $dir = Path::append($tmp, $args->get(2));
@@ -301,7 +304,14 @@ try {
                 }
 
                 echo "\nAdding module \e[96m" . $args->get(2) . "\e[0m ...";
-                Directory::copy ($dir, Path::append(Path::fsroot(), 'mods', $args->get(2)), true, true);
+                Directory::copy($dir, Path::append(Path::fsroot(), 'mods', $args->get(2)), true, true);
+
+                if (isset($meta['bin'])) {
+                    foreach ($meta['bin'] as $file) {
+                        File::copy(Path::append($dir, $file), $bin_dir);
+                        Path::chmod(Path::append($bin_dir, $file), 0755);
+                    }
+                }
             }
             else
             {
@@ -321,7 +331,14 @@ try {
                     }
     
                     echo "\nAdding module \e[96m" . $dir->name . "\e[0m ...";
-                    Directory::copy ($dir->path, Path::append(Path::fsroot(), 'mods', $dir->name), true, true);
+                    Directory::copy($dir->path, Path::append(Path::fsroot(), 'mods', $dir->name), true, true);
+
+                    if (isset($meta['bin'])) {
+                        foreach ($meta['bin'] as $file) {
+                            File::copy(Path::append($dir->path, $file), $bin_dir);
+                            Path::chmod(Path::append($bin_dir, $file), 0755);
+                        }
+                    }
                 }
             }
 
@@ -355,14 +372,40 @@ try {
         
         default:
             $path = $args->get(1);
-            if ($path[0] === ':') {
+            $mod_path = Path::append(Path::fsroot(), 'mods', $path);
+
+            if ($path[0] === ':' ) {
                 $name = Text::substring($path, 1);
                 $path = Path::append(Path::fsroot(), 'mods', $name);
                 if (!Path::exists($path))
                     throw new Error ("Module \e[97m'" . $name . "'\e[0m not installed.");
                 Rose\Ext\Wind::run($path.'/main.fn', new Map ([ 'args' => $args->slice(2)->unshift(Path::resolve($path.'/main.fn')) ]));
             }
-            else {
+            else if (Path::exists($mod_path))
+            {
+                Rose\Ext\Wind::run($mod_path.'/main.fn', new Map ([ 'args' => $args->slice(2)->unshift(Path::resolve($mod_path.'/main.fn')) ]));
+            }
+            else
+            {
+                if (Path::exists($path) && !Text::endsWith($path, '.fn'))
+                {
+                    $line = explode("\n", file_get_contents($path))[0];
+                    if (!$line)
+                        throw new Error ("File \e[97m'" . $path . "'\e[0m is empty.");
+
+                    if (Text::startsWith($line, '#!rose :')) {
+                        $line = explode('rose :', $line);
+                        $path = Path::append(Path::fsroot(), 'mods', $line[1]);
+                        if (!Path::exists($path))
+                            throw new Error ("Module \e[97m'" . $line[1] . "'\e[0m not installed.");
+                        Rose\Ext\Wind::run($path.'/main.fn', new Map ([ 'args' => $args->slice(1)->unshift(Path::resolve($path.'/main.fn')) ]));
+                        break;
+                    }
+
+                    Rose\Ext\Wind::run($path, new Map ([ 'args' => $args->slice(2)->unshift(Path::resolve($path)) ]));
+                    break;
+                }
+
                 if (Text::endsWith($path, '.fn'))
                     Rose\Ext\Wind::run($path, new Map ([ 'args' => $args->slice(2)->unshift(Path::resolve($path)) ]));
                 else

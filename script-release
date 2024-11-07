@@ -1,3 +1,5 @@
+#!rose :deploy
+
 ECHO {clr 92}Bumping up version ...{clr 0}
     NEW_VERSION {with v {split "." {file:read "VERSION.txt"}} {set idx {- {len {v}} 1}} {set v.{idx} {+ 1 {v.{idx}}}} {join "." {v}}}
     r0 {NEW_VERSION}

@@ -7,3 +7,6 @@ volatile/
 deploy.js
 composer.lock
 logs/
+bin/
+mod-cache/
+mods/
