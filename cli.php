@@ -374,6 +374,8 @@ try {
             $path = $args->get(1);
             $mod_path = Path::append(Path::fsroot(), 'mods', $path);
 
+            $is_fn = Path::exists($path) && Text::endsWith($path, '.fn') || Path::exists($path.'.fn');
+
             if ($path[0] === ':' ) {
                 $name = Text::substring($path, 1);
                 $path = Path::append(Path::fsroot(), 'mods', $name);
@@ -381,13 +383,13 @@ try {
                     throw new Error ("Module \e[97m'" . $name . "'\e[0m not installed.");
                 Rose\Ext\Wind::run($path.'/main.fn', new Map ([ 'args' => $args->slice(2)->unshift(Path::resolve($path.'/main.fn')) ]));
             }
-            else if (Path::exists($mod_path))
+            else if (!$is_fn && Path::exists($mod_path))
             {
                 Rose\Ext\Wind::run($mod_path.'/main.fn', new Map ([ 'args' => $args->slice(2)->unshift(Path::resolve($mod_path.'/main.fn')) ]));
             }
             else
             {
-                if (Path::exists($path) && !Text::endsWith($path, '.fn'))
+                if (!$is_fn && Path::exists($path))
                 {
                     $line = explode("\n", file_get_contents($path))[0];
                     if (!$line)
