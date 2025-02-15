@@ -9,8 +9,9 @@
         "rsthn/rose-core": "^5",
         "rsthn/rose-ext-sentinel": "^3.0",
         "rsthn/rose-ext-shield": "^2.0",
-        "rsthn/rose-ext-angela": "3.0.0",
-        "rsthn/rose-ext-twilio": "^1.0"
+        "rsthn/rose-ext-angela": "^3.0",
+        "rsthn/rose-ext-twilio": "^1.0",
+        "rsthn/rose-ext-phpmailer": "^2.0"
     },
     "config": {
         "allow-plugins": {
