@@ -11,7 +11,8 @@
         "rsthn/rose-ext-shield": "^2.0",
         "rsthn/rose-ext-angela": "^3.0",
         "rsthn/rose-ext-twilio": "^1.0",
-        "rsthn/rose-ext-phpmailer": "^2.0"
+        "rsthn/rose-ext-phpmailer": "^2.0",
+        "rsthn/rose-ext-csv": "^1.0"
     },
     "config": {
         "allow-plugins": {
