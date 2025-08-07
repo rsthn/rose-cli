@@ -21,6 +21,13 @@ function cli_error_handler ($errno, $message, $file, $line) {
     echo "\e[93mWarn (".$file." ".$line."):\e[0m " . $message . "\n";
 }
 
+function linear_version($value) {
+    $output = 1;
+    foreach (explode('.', $value) as $value)
+        $output = ($output*1000) + $value;
+    return $output;
+}
+
 Main::defs(true);
 
 /* $dir = Path::resolve(Path::dirname('.'));
@@ -373,7 +380,6 @@ try {
         default:
             $path = $args->get(1);
             $mod_path = Path::append(Path::fsroot(), 'mods', $path);
-
             $is_fn = Path::exists($path) && Text::endsWith($path, '.fn') || Path::exists($path.'.fn');
 
             if ($path[0] === ':' ) {
@@ -395,11 +401,20 @@ try {
                     if (!$line)
                         throw new Error ("File \e[97m'" . $path . "'\e[0m is empty.");
 
-                    if (Text::startsWith($line, '#!rose :')) {
-                        $line = explode('rose :', $line);
-                        $path = Path::append(Path::fsroot(), 'mods', $line[1]);
+                    if (Text::startsWith($line, '#!rose :'))
+                    {
+                        $line = explode(' ', explode('rose :', $line)[1]);
+
+                        $path = Path::append(Path::fsroot(), 'mods', $line[0]);
                         if (!Path::exists($path))
-                            throw new Error ("Module \e[97m'" . $line[1] . "'\e[0m not installed.");
+                            throw new Error ("Module \e[97m'" . $line[0] . "'\e[0m not installed.");
+
+                        if (count($line) > 1) {
+                            $meta = json_decode(file_get_contents(Path::append($path, 'meta.json')), true);
+                            if (linear_version($meta['version']) < linear_version($line[1]))
+                                throw new Error ("Module \e[94m" . $line[0] . "\e[0m version \e[96m" . $line[1] . "\e[0m or higher is required.");
+                        }
+
                         Rose\Ext\Wind::run($path.'/main.fn', new Map ([ 'args' => $args->slice(1)->unshift(Path::resolve($path.'/main.fn')) ]));
                         break;
                     }
